@@ -1,39 +1,63 @@
+from character import Character
+
 #tutorial
 
 locs_list = [
     {
-    "name": "Spawn point",
+    "loc_name": "Spawn point",
     "desc": "Spawn point of the player",
+    "items": " ",
     "next_loc": "B"
 },
 {
-    "name": "Point B",
+    "loc_name": "Point B",
     "desc": "Area lies a hidden chest.",
+    "items": "a sword",
     "next_loc": "C"
 }
 ]
+
+def start():
+    for location in locs_list:
+        print("You are currently in the 'Spawn Point'")
+        print("You can only go to " + Location(**location).get_loc(1))
 
 class Map:
     def __init__(self):
         self.map = [] 
 
     def add_locs(self):
-        new_map = self.map.append(self.name)
+        new_map = self.map.append(self.loc_name)
         return new_map
 class Location:
-    def __init__(self,name,desc,next_loc=None): #next_loc is the node and is set to 'None' by default — node will not lead to anywhere by default.
-        self.name = name 
+    def __init__(self,loc_name,desc,items=None,next_loc=None,): #next_loc is the node and is set to 'None' by default — node will not lead to anywhere by default.
+        self.loc_name = loc_name 
         self.desc = desc
+        self.items = items
         self.next_loc = next_loc
 
     def __repr__(self): 
-        return f"{self.name} {self.desc} {self.next_loc}" 
+        return f"{self.loc_name} {self.desc} {self.next_loc}" 
+    
+    def get_loc(self):
+        return self.loc_name
 
 location = [Location(**locations) for locations in locs_list]
+class Movement:
+    def __init__(self):
+        self.dirs = []
+    
+    def add_dirs(self):
+        new_dirs = self.dirs.append()
+        return new_dirs
 
-print(location)
 
+    def player_move(self):
+        pass
+       
+# print(location)
 
+print(start())
 
 
 

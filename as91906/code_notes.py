@@ -12,4 +12,4 @@
 
 #this code turns object into readable lines.
 #def __repr__(self): 
-        # return f"{self.name} {self.desc} {self.next_loc}" 
+        # return f"{self.name} {self.desc} {self.next_loc}"  — f strings
