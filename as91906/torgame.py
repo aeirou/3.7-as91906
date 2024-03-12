@@ -1,10 +1,10 @@
-from character import Character
+from character import Player
 
 #tutorial
 
 locs_list = [
     {
-    "loc_name": "Spawn point",
+    "locgit _name": "Spawn point",
     "desc": "Spawn point of the player",
     "items": " ",
     "next_loc": "B"
@@ -16,12 +16,6 @@ locs_list = [
     "next_loc": "C"
 }
 ]
-
-def start():
-    for location in locs_list:
-        print("You are currently in the 'Spawn Point'")
-        print("You can only go to " + Location(**location).get_loc(1))
-
 class Map:
     def __init__(self):
         self.map = [] 
@@ -55,9 +49,8 @@ class Movement:
     def player_move(self):
         pass
        
-# print(location)
-
-print(start())
+       
+print(location)
 
 
 
