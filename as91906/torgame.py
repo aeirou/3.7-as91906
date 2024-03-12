@@ -1,12 +1,10 @@
-from character import Player
-
-#tutorial
+from tkinter import Tk
 
 locs_list = [
     {
-    "locgit _name": "Spawn point",
+    "loc_name": "Spawn point",
     "desc": "Spawn point of the player",
-    "items": " ",
+    "items": "None",
     "next_loc": "B"
 },
 {
@@ -16,13 +14,14 @@ locs_list = [
     "next_loc": "C"
 }
 ]
+
+class Game:
+    pass
+
 class Map:
     def __init__(self):
         self.map = [] 
 
-    def add_locs(self):
-        new_map = self.map.append(self.loc_name)
-        return new_map
 class Location:
     def __init__(self,loc_name,desc,items=None,next_loc=None,): #next_loc is the node and is set to 'None' by default — node will not lead to anywhere by default.
         self.loc_name = loc_name 
@@ -31,26 +30,33 @@ class Location:
         self.next_loc = next_loc
 
     def __repr__(self): 
-        return f"{self.loc_name} {self.desc} {self.next_loc}" 
-    
-    def get_loc(self):
-        return self.loc_name
+        return f"{self.loc_name} {self.desc} {self.items} {self.next_loc}" 
 
 location = [Location(**locations) for locations in locs_list]
-class Movement:
-    def __init__(self):
-        self.dirs = []
+
+#names with leading underscore '_' eg 'self._name' means that, that attribute or method is intended to be used inside of the class.
+class Player:
+    def __init__(self, name, health, dmg, default_loc, current_loc):
+        self._name = name
+        self._health = health
+        self._dmg = dmg
+        self._default_loc = locs_list[0]
+        self._location = location #current
     
-    def add_dirs(self):
-        new_dirs = self.dirs.append()
-        return new_dirs
+    #gets the current location
+    @property
+    def location(self): return self._current_loc
+
+    #sets the current location
+    @location.setter
+    def location(self, new_loc): self._current_loc = new_loc
+
+player = Player("test", 100, 200, default_loc=locs_list[0], )
 
 
-    def player_move(self):
-        pass
-       
-       
-print(location)
+# print(Player.default_loc)
+# print(location)
+
 
 
 
