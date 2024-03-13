@@ -14,29 +14,25 @@ locs_list = [
     "next_loc": "C"
 }
 ]
-
-class Game:
-    pass
-
 class Map:
     def __init__(self):
         self.map = [] 
 
 class Location:
-    def __init__(self,loc_name,desc,items=None,next_loc=None,): #next_loc is the node and is set to 'None' by default — node will not lead to anywhere by default.
+    #next_loc is the node and is set to 'None' by default — node will not lead to anywhere by default.
+    def __init__(self,loc_name,desc,items=None,next_loc=None,): 
         self.loc_name = loc_name 
         self.desc = desc
         self.items = items
         self.next_loc = next_loc
 
-    def __repr__(self): 
-        return f"{self.loc_name} {self.desc} {self.items} {self.next_loc}" 
-
+    def __repr__(self): return f"{self.loc_name} {self.desc} {self.items} {self.next_loc}" 
+    
 location = [Location(**locations) for locations in locs_list]
 
 #names with leading underscore '_' eg 'self._name' means that, that attribute or method is intended to be used inside of the class.
 class Player:
-    def __init__(self, name, health, dmg, default_loc, current_loc):
+    def __init__(self, name, health, dmg, location):
         self._name = name
         self._health = health
         self._dmg = dmg
@@ -45,19 +41,13 @@ class Player:
     
     #gets the current location
     @property
-    def location(self): return self._current_loc
+    def location(self): return self._location
 
-    #sets the current location
+    #sets the current location -- sets the changed location.
     @location.setter
-    def location(self, new_loc): self._current_loc = new_loc
+    def location(self, new_loc): self._location = new_loc
 
-player = Player("test", 100, 200, default_loc=locs_list[0], )
-
-
-# print(Player.default_loc)
-# print(location)
-
-
-
-
-
+test = Player("B", 10, 10, "you are currently in location b")
+print(test.location)
+test.location = "you have moved onto location c"
+print(test.location)
