@@ -13,3 +13,5 @@
 #this code turns object into readable lines.
 #def __repr__(self): 
         # return f"{self.name} {self.desc} {self.next_loc}"  — f strings
+
+#names with leading underscore '_' eg 'self._name' means that, that attribute or method is intended to be used inside of the class.

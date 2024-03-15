@@ -25,13 +25,19 @@ class Location:
         self.desc = desc
         self.items = items
         self.next_loc = next_loc
-
-    def __repr__(self): return f"{self.loc_name} {self.desc} {self.items} {self.next_loc}" 
+    
+    def __repr__(self): 
+        """
+            Prints out location name, description and the next locations
+        """
+        return f"{self.loc_name} {self.desc} {self.items} {self.next_loc}" 
     
 location = [Location(**locations) for locations in locs_list]
 
-#names with leading underscore '_' eg 'self._name' means that, that attribute or method is intended to be used inside of the class.
 class Player:
+    """ 
+    Player's attributes. 
+    """
     def __init__(self, name, health, dmg, location):
         self._name = name
         self._health = health
@@ -39,13 +45,26 @@ class Player:
         self._default_loc = locs_list[0]
         self._location = location #current
     
-    #gets the current location
     @property
     def location(self): return self._location
 
     #sets the current location -- sets the changed location.
     @location.setter
     def location(self, new_loc): self._location = new_loc
+
+    def move(self, direction):
+        """
+            A method so the player can move from locatioon to the other.
+        """
+        for loc in locs_list:
+            pass
+
+
+
+
+
+
+
 
 test = Player("B", 10, 10, "you are currently in location b")
 print(test.location)
