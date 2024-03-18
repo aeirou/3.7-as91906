@@ -15,3 +15,8 @@
         # return f"{self.name} {self.desc} {self.next_loc}"  — f strings
 
 #names with leading underscore '_' eg 'self._name' means that, that attribute or method is intended to be used inside of the class.
+
+# test = Player("B", 10, 10, "you are currently in location b")
+# print(test.location)
+# test.location = "you have moved onto location c"
+# print(test.location)

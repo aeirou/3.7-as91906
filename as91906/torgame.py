@@ -42,7 +42,6 @@ class Player:
         self._name = name
         self._health = health
         self._dmg = dmg
-        self._default_loc = locs_list[0]
         self._location = location #current
     
     @property
@@ -52,21 +51,22 @@ class Player:
     @location.setter
     def location(self, new_loc): self._location = new_loc
 
-    def move(self, direction):
+    def move(self):
         """
-            A method so the player can move from locatioon to the other.
+            A method so the player can move from locatioon to the other, based on the player's input.
         """
+        dest = input(str("Where would you like to go? ")).upper()
         for loc in locs_list:
-            pass
+            if loc["loc_name"] == self._location:
+                if dest == loc["next_loc"]:
+                    self._location = dest
+                    return dest
+        return "This is not a valid location."
+    
+    def __repr__(self): 
+        """
+            Prints out location name, description and the next locations
+        """
+        return f"{self._name} {self._health} {self._dmg} {self._location}" 
 
-
-
-
-
-
-
-
-test = Player("B", 10, 10, "you are currently in location b")
-print(test.location)
-test.location = "you have moved onto location c"
-print(test.location)
+    
