@@ -9,7 +9,7 @@ locs_list = [
         "next_loc": ["B", "C", "D"] # <-- does the method go through every "next_loc"?
     },
     {
-        "loc_name": "Point B",
+        "loc_name":"B",
         "desc": "Area lies a hidden chest.",
         "items": "a sword",
         "next_loc": ["E", "F", "G"]
@@ -72,6 +72,7 @@ class Player:
 
     @location.setter
     def location(self, new_loc):
+
         self._location = new_loc
 
     def __repr__(self):
@@ -86,22 +87,32 @@ class Player:
         Returns:
             str: new location of player
         """
-        for loc in locs_list:
-            dest = input(str("Where would you like to go?")).upper()
+        dest = input(str("Where would you like to go?")).upper()
 
+        for loc in locs_list:
             # if player's dest in next_loc
             if dest in loc["next_loc"]:
-                dest = self._location
+                self._location = dest
+
                 return dest
 
-    def __str__ (self):
-        return f'{self._name}, {self._health}, {self._dmg}, Spawn Point'
+            return False
 
+def error():
+    """
+        If check lock is False
+    """
+    while check_loc is False:
+        print("Sorry but this is an invalid location. Try again: ")
+        player.move()
+        if check_loc: # fix to break the loop.
+            print(player)
 
 player = Player("aeirone", 10, 10, "Spawn Point")
 print(player)
-player.move()
 
-# TODO how to change current location to dest
-player = Player("aeirone", 10, 10, player.move)
+check_loc = player.move()
+
+player = Player("aeirone", 10, 10, check_loc )
+# error()
 print(player)
