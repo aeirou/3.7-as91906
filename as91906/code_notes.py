@@ -20,3 +20,43 @@
 # print(test.location)
 # test.location = "you have moved onto location c"
 # print(test.location)
+
+
+
+# def move(self,locs_list):
+#         """
+#             A method so the player can move from locatioon to the other, based on the player's input.
+#         """
+#         next_loc = input(str("Where would you like to go? ")).upper()
+
+#         for loc in locs_list:
+#             if loc["loc_name"] == self._location:
+#                 if next_loc in loc["next_loc"]:
+#                     self._location = next_loc # <-- player's destination becomes player's current location.
+#                     return next_loc
+#         return False
+
+
+#print player's destination and current location.
+# for loc in locs_list:
+#     if player.next_loc in loc["next_loc"]:
+#         player = Player("aeirone",10,10, loc["next_loc"])
+#         print(player)
+
+# def player_move_loop():
+#     """
+#         Loop for player to move.
+#     """
+#     player = Player("aeirone", 10, 10, "Spawn Point")
+
+#     for loc in locs_list:
+#         dest = input(str("Where would you like to go?")).upper()
+
+#         if dest in loc["next_loc"]:
+#             player = Player("aeirone", 10, 10, dest)
+#             print(player)
+
+#         if dest not loc["next_loc"]:
+
+
+# player_move_loop()
