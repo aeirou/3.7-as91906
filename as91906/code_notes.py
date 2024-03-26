@@ -60,3 +60,83 @@
 
 
 # player_move_loop()
+
+# class Player:
+#     """ 
+#     Player's attributes. 
+#     """
+
+#     def __init__(self, name, health, dmg, location):
+#         self.name = name
+#         self.health = health
+#         self.max_health = health
+#         self.dmg = dmg
+#         self._location = location  # current
+
+#     def attack(self, target):
+#         """Attack method.
+
+#         Returns:
+#             target (str): Health of player and enemy. 
+#         """
+#         target.health -= self.dmg
+#         target.health = max(target.health, 0) # prevents health from going below 0.
+
+#     @property
+#     def location(self):
+#         """ Gets the location.
+        
+#         Returns:
+#             str: location of the player.
+#         """
+#         return self._location
+
+#     @location.setter
+#     def location(self, new_loc):
+#         self._location = new_loc
+
+#     def move(self):
+#         """Move method for player.
+
+#         Returns:
+#             str: new location of player
+#         """
+#         dest = input(str("Where would you like to go?")).upper()
+
+#         for loc in locs_list:
+#             # if player's dest in next_loc
+#             if dest in loc["next_loc"]:
+#                 self._location = dest
+
+#                 return dest
+
+#             return False
+
+#     def __repr__(self):
+#         """
+#             Prints out player name, health, dmg and current location.
+#         """
+#         return f"{self.name} {self.health} {self.dmg} {self._location}"
+
+# # def error():
+# #     """
+# #         If check loc is False
+# #     """
+# #     while check_loc is False:
+# #         print("Sorry but this is an invalid location. Try again: ")
+# #         player.move()
+# #         if check_loc: # fix to break the loop.
+# #             print(player)
+
+
+# player = Player("aeirone", 100, 10, "Spawn Point")
+# enemy = Player("marcus", 100, 5, "Spawn Point")
+
+# while True:
+#     player.attack(enemy)
+#     enemy.attack(player)
+
+#     print (f"The health of {player.name}: is {player.health}.")
+#     print (f"The health of {enemy.name}: is {enemy.health}.")
+
+#     input()
