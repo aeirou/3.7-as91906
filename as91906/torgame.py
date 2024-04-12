@@ -1,26 +1,29 @@
-from tkinter import Tk
+"""Module docstring for import rand"""
+import random
+import tkinter as tk
+from tkinter import *
+from tkinter import ttk
 
 locs_list = [
     {
-        "loc_name": "Spawn point",
-        "desc": "Spawn point of the player",
-        "items": " ",
+        "loc_name": "A",
+        "desc": "Spawn",
+        "items": "None",
         "next_loc": ["B", "C", "D"]
     },
     {
         "loc_name": "B",
-        "desc": "Area lies a hidden chest.",
-        "items": " ",
+        "desc": "Fields",
+        "items": random.choice(["Sword", "Stick", "Knife", "Dagger"]),
         "next_loc": ["E", "F", "G"]
     },
     {
         "loc_name": "E",
-        "desc": "Area lies a hidden chest.",
-        "items": " ",
+        "desc": "Cave",
+        "items": random.choice(["Sword", "Stick", "Knife", "Dagger"]),
         "next_loc": ["H", "I", "J"]
     }
 ]
-
 
 class Map:
     """Map for the game."""
@@ -48,16 +51,6 @@ class Location:
     def __repr__(self):
         """Prints out location name, description and the next locations."""
         return f"{self.loc_name} {self.desc} {self.items} {self.next_loc}"
-
-# static method makes the method belong to class itself,
-# not a specific instance of the class.
-    @staticmethod
-    def rand_ite():
-        """Items for each location."""
-        # TODO randomise the items and assign it to a location.
-        common = ["Sword", "Stick", "Knife", "Dagger"]
-        rare = ["Machete", "Katana", "Flail", "Mace", "Shield"]
-        legendary = ["Excalibur"]
 
 
 location_split = [Location(**locations) for locations in locs_list]
@@ -93,12 +86,15 @@ class Player:
         Returns:
             str: new location of player
         """
+        print(location_split[0])
         dest = input(str("Where would you like to go?")).upper()
 
         for loc in locs_list:
             # if player's dest in next_loc
             if dest in loc["next_loc"]:
                 self._location = dest
+                print("You have moved.")
+                print(f"Next locations are: {locs_list[0].values()}")
                 return dest
 
             return False
@@ -107,22 +103,41 @@ class Player:
         """Prints out player name, health, dmg and current location."""
         return f"{self.name} {self.health} {self.dmg} {self._location}"
 
-
-def error():
-    """If check loc is False."""
-
-    while check_loc is False:
-        print("Sorry but this is an invalid location. Try again: ")
-        player.move()
-        if check_loc: # fix to break the loop.
-            print(player)
-
-
 player = Player("aeirone", 10, 10, "Spawn Point")
-print(player)
+# print(player)
 
-check_loc = player.move()
+# check_loc = player.move()
 
-player = Player("aeirone", 10, 10, check_loc)
-# error()
-print(player)
+# player = Player("aeirone", 100, 1, check_loc)
+# # error()
+# print(player)
+
+# create tkinter window
+root = tk.Tk()
+
+# title change
+root.title('TOR')
+
+# window geometry
+root.geometry('800x700')
+root.resizable('False','False')
+
+# title
+title = Label(root, text = "Tower of Resuscitation")
+title.config(font =("Courier", 25))
+title.pack()
+
+# text box for input
+txt_box = Text(root, height=4, width=20)
+txt_box.pack()
+
+# next button
+b1 = Button(root, text = "Next", )
+b1.pack()
+
+# exit button.
+b2 = Button(root, text = "Exit",
+            command = Widget.destroy) 
+b2.pack()
+
+root.mainloop()
