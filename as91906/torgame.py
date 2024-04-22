@@ -2,7 +2,6 @@
 import random
 import tkinter as tk
 from tkinter import *
-from tkinter import ttk
 
 locs_list = [
     {
@@ -24,6 +23,21 @@ locs_list = [
         "next_loc": ["H", "I", "J"]
     }
 ]
+
+ # strings for player's details
+def prompt():
+    """for str promppt
+
+    Returns:
+        str: player details
+    """
+    for loc in locs_list:
+        print(f'You are currently at location: {loc["loc_name"]}.')
+        print(loc["desc"])
+        print(f'You have found the item(s): {loc["items"]}')
+        print(f'You can move to location(s): {loc["next_loc"]}')
+
+    return
 
 class Map:
     """Map for the game."""
@@ -55,7 +69,6 @@ class Location:
 
 location_split = [Location(**locations) for locations in locs_list]
 
-
 class Player:
     """Player's attributes."""
 
@@ -86,31 +99,25 @@ class Player:
         Returns:
             str: new location of player
         """
-        print(location_split[0])
+        # takes all the "next_loc" in the list of dicts
+        locs = [l.get("next_loc") for l in locs_list]
+
         dest = input(str("Where would you like to go?")).upper()
 
         for loc in locs_list:
             # if player's dest in next_loc
             if dest in loc["next_loc"]:
                 self._location = dest
-                print("You have moved.")
-                print(f"Next locations are: {locs_list[0].values()}")
+                print(f"You have moved to '{dest}'.")
+                print(f"Your next locations are: {locs[1]}")
                 return dest
-
             return False
 
     def __repr__(self):
         """Prints out player name, health, dmg and current location."""
         return f"{self.name} {self.health} {self.dmg} {self._location}"
 
-player = Player("aeirone", 10, 10, "Spawn Point")
-# print(player)
-
-# check_loc = player.move()
-
-# player = Player("aeirone", 100, 1, check_loc)
-# # error()
-# print(player)
+player = Player("aeirone", 100, 1, "Spawn Point")
 
 # create tkinter window
 root = tk.Tk()
@@ -137,7 +144,20 @@ b1.pack()
 
 # exit button.
 b2 = Button(root, text = "Exit",
-            command = Widget.destroy) 
+            command = Widget.destroy)
 b2.pack()
 
+var = StringVar()
+label = Label( root, textvariable=var )
+var.set(player)
+label.pack()
+
 root.mainloop()
+
+print(player)
+
+check_loc = player.move()
+
+player = Player("aeirone", 100, 1, check_loc)
+# error()
+print(player)
