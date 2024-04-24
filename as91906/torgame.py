@@ -7,13 +7,13 @@ from tkinter import Label, Text, Button
 NESTED_DICT_LIST = {
     "A":{
         "desc": "Spawn Point",
-        "items": "None",
+        "items": " ",
         "next_loc": ["B", "C"]
     },
     "B":{
         "desc": "Basement Classroom 1",
         "items": random.choice(["Paper", "Pen", "Paper", "Twink"]),
-        "next_loc": ["C", "D"]
+        "next_loc": ["A","C", "D"]
     },
     "C":{
         "desc": "Basement Classroom 2",
@@ -27,8 +27,8 @@ NESTED_DICT_LIST = {
     },
     "E":{
         "desc": "Gate to Floor 2",
-        "items": "None",
-        "next_loc": ["F"]
+        "items": " ",
+        "next_loc": ["C","F"]
     }}
 
 
@@ -39,12 +39,17 @@ class Map:
         """Docstring for map."""
         self.map = []
 
+# when taking away an item from the location, the constant 'nested_dict' doesnt change
+# but the class location does.
 
 class Location:
-    """Location for player.
+    """The locations and its attributes which changes instead of the nested dict, which is a list.
 
     Returns:
-        str: location, description, items and next locations.
+        str: loc_name: The name of the location.
+             desc: The description of the location.
+             items: The items in the location which are obtainable.
+             next_loc: The next locations the player can travel to from their current location.
     """
 
     # next_loc is the node and is set to 'None' by default
@@ -64,10 +69,12 @@ class Player:
     """Player's attributes."""
 
     def __init__(self,num_tries):
-        """Docstring for Player."""
+        """
+            Initialises inventory, number of tries and current location.
+        """
         self.inv = []
         self.num_tries = num_tries
-        self.current_location = "A" # current
+        self.current_location = "A"
 
     @property
     def location(self):
@@ -92,10 +99,22 @@ class Player:
 
         item = input("What item(s) would you like to pick up? ")
 
-        # checks if the item is in 'items' in the current location by indexing the current location and items
+        # checks if the item is in 'items' in the current location
+        # by indexing the current location and items
         if item in NESTED_DICT_LIST[self.current_location]['items']:
             self.inv.append(item) # adds the item that is picked up into the inv
             return self.inv
+
+    def inv_empty(self):
+        """Return 'None' when inventory is empty.
+
+        Returns:
+            str: when inventory is empty, it outputs none.
+        """
+        if not self.inv:
+            return "You have nothing in your inventory."
+        else:
+            return f"Inventory: {self.inv}"
 
     def move(self, dest):
         """Move method for player.
@@ -111,8 +130,9 @@ class Player:
         return False
 
     def __repr__(self):
-        """Prints out player name, health, dmg and current location."""
+        """Prints out player inventory and current location."""
         return f"{self.inv} {self.current_location}"
+
 
 
 player = Player(0)
@@ -140,20 +160,24 @@ def toggle_location_buttons():
         Creates a list of buttons to show the next locations available,
         to the player in their current location.
     """
-    # Hides all the buttons
+
+     # Empty list for the buttons that is going ot be displayed
+    list_of_buttons_to_show = []
+
+    # Hides all the buttons first.
+    button_a.pack_forget()
     button_b.pack_forget()
     button_c.pack_forget()
     button_d.pack_forget()
     button_e.pack_forget()
 
-    # Empty list for the buttons that is going ot be displayed
-    list_of_buttons_to_show = []
-
     # Goes through the next locations of the current location to display on the list.
     # From the current location (player.current_location), it checks through the next locations
     # -available by going through the "next_loc".
+    if "A" in NESTED_DICT_LIST[player.current_location]["next_loc"]:
+        list_of_buttons_to_show.append(button_a) # appends that location into the list of buttons
     if "B" in NESTED_DICT_LIST[player.current_location]["next_loc"]:
-        list_of_buttons_to_show.append(button_b) # appends that location into the list of buttons
+        list_of_buttons_to_show.append(button_b)
     if "C" in NESTED_DICT_LIST[player.current_location]["next_loc"]:
         list_of_buttons_to_show.append(button_c)
     if "D" in NESTED_DICT_LIST[player.current_location]["next_loc"]:
@@ -173,7 +197,7 @@ def update_player_loc(updated_loc):
     """
     # Changes the location of the player on the player's stats menu.
     player_stats.config(state='normal')  # Enables editing
-    player_stats.delete('1.0', tk.END)  # Clears the previous text
+    player_stats.delete('end-3l', tk.END)  # Clears the previous text
     player_stats.insert(tk.END,
                         (f"\nYou are currently in location: {updated_loc}")) # Insert current loc
     player_stats.config(state='disabled')  # Disable user editing
@@ -182,9 +206,29 @@ def update_player_loc(updated_loc):
     output.config(state='normal')
     output.insert(tk.END,
                         (f"\nYou have moved to location: {updated_loc}\n"))
+    output.insert(tk.END,
+                (f"\n{show_location_info()}\n"))
     output.config(state='disabled')
 
-    toggle_location_buttons() # Initialises to show the buttons.
+    toggle_location_buttons() # Initialises the buttons to change & show
+                              # whenever the player's location updates.
+
+
+def show_location_info():
+    """Returns the location's description, items, and next possible locations."""
+    # Matches the updated location to it's dictionary and takes it.
+    loc_info = NESTED_DICT_LIST[player.current_location]
+    desc = f"You are currently in: {loc_info['desc']}" # Takes the 'desc' of that location.
+    items = loc_info['items'] # Takes the 'items' of that location.
+    next_locs = f"Your next possible locations are: {' '.join(loc_info['next_loc'])}"  # Turns list into a string w/o '[,]'
+
+    # Checks if there are obtainable items in the current location of the player.
+    if items == " ":
+        items = "There are no obtainable items in this location." # If there are no items.
+    else:
+        items = f"You have found the items: {loc_info['items']}" # If there are items.
+
+    return f"{desc}\n{items}\n{next_locs}"
 
 
 def update_player_inv(updated_inv):
@@ -192,24 +236,30 @@ def update_player_inv(updated_inv):
         Updates the player's inventory on the output text box.
     """
     player_stats.config(state='normal')
-    player_stats.delete('1.0', tk.END)
+    player_stats.delete('2.0', '2.end')
     player_stats.insert(tk.END,
                         (f"Inventory: {updated_inv}"))
     player_stats.config(state='disabled')
 
 
+# Text box for the player's current location and items in inventory.
+player_stats = Text(root, fg="white", height="13px")
+player_stats.insert('1.0',
+                    (f"\n{player.inv_empty()}\n"))
+player_stats.insert('1.0',
+                    (f"\nYou are currently in location: {player.current_location}\n"))
+player_stats["state"]="disabled"
+
+
 # Output text box for player's actions.
 output = Text(root, height=25, width=75, bg="black")
 output.insert('1.0',
-             (f"\nYou are currently in location: {player.current_location}\n")) # Insert current location
+             (f"\nYou are currently in location: {player.current_location}\n")) # current location
+# Inserts the location's atributtes (desc, items, next_loc)
+output.insert(tk.END,
+                (f"\n{show_location_info()}\n"))
 output["state"]="disabled" # Disable user editing
-
-
-# Text box for the player's current location and items in inventory.
-player_stats = Text(root, fg="white", height="5px")
-player_stats.insert('1.0',
-                    (f"\nYou are currently in location: {player.current_location}"))
-player_stats["state"]="disabled"
+output.see('end')
 
 
 # Parent button which toggles the children buttons
@@ -218,6 +268,11 @@ start_move = Button(root, text="Move", command=toggle_location_buttons)
 
 # Location buttons which are toggled by the parent button: start_move.
 # TODO create a button for all locations.
+button_a = Button(root,
+                      height=2,
+                      width=8,
+                      text="A",
+                      command=lambda: update_player_loc(player.move("A")))
 button_b = Button(root,
                       height=2,
                       width=8,
