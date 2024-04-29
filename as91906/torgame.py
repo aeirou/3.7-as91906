@@ -1,38 +1,6 @@
 """Module docstring for import rand"""
-import random
-import copy
 import tkinter as tk
 from tkinter import Label, Text, Button
-
-
-# Item list.
-item_list = {
-    "Old Sword":{
-        "weapon": "Old Sword",
-        "weapon_desc": "An old rusty sword covered with dry blood of fallen soldiers.",
-        "weapon_health": 10,
-        "weapond_dmg": 3,
-    },
-    "Sword":{
-        "weapon": "Sword",
-        "weapon_desc": "A silver sword which was taken from a dead knight.",
-        "weapon_health": 20,
-        "weapond_dmg": 7,
-    },
-    "Legendary Dragon Slayer":{
-        "weapon": "Legendary Dragon Slayer",
-        "weapon_desc": "A legendary greatsword that weighs the same as the sky, but weightless to the One.",
-        "weapon_health": 50, # max health of the sword.
-        "weapond_dmg": 20,
-    },
-    "Silver Key to Floor 2":{
-        "key_floor2": "Silver Key to Floor 2"
-    },
-    "Golden Key to Floor 3":{
-        "key_floor3":  "Golden Key to Floor 3"
-    }
-
-}
 
 
 # Location list.
@@ -40,60 +8,71 @@ item_list = {
 NESTED_DICT_LIST = {
     "A":{
         "desc": "a battlefield filled with corpses and rusty swords.", # fight 
-        "items": [item_list['Old Sword']['weapon']],
+        "items": " ",
         "next_loc": ["B", "C"]
     },
     "B":{
-        "desc": "a wooden shack",
-        "items": [item_list['Sword']['weapon']],
+        "desc": "a cozy looking wooden shack.",
+        "items": " ",
         "next_loc": ["A","C", "D"]
     },
     "C":{
         "desc": "an old ruin of a shack.",
-        "items": " ",
+        "items": "",
         "next_loc": ["B", "E",]
     },
     "D":{
         "desc": "a cave that hold an important treasure.",
-        "items": [item_list['Silver Key to Floor 2']['key_floor2']],
+        "items": " ",
         "next_loc": ["B"]
     },
     "E":{
         "desc": "Gate to Floor 2",
-        "items": " ",
+        "items": "",
         "next_loc": ["C","F"]
     }}
 
 
-class Player:
-    """Player's attributes."""
-
-    def __init__(self,num_tries):
-        """
-            Initialises inventory, number of tries and current location.
-        """
-        self.inv = []
-        self.num_tries = num_tries
-        self.current_location = "A"
-
-    @property
-    def new_location(self):
-        """ Gets the location.
-
-        Returns:
-            str: Returns the current location of the player.
-        """
-        return self.current_location
-
-    @new_location.setter
-    def new_location(self, new_loc):
-        """Sets the new location of the player based on where they chose to go.
+class Character:
+    """A superclass for characters such as the player and npc.
+    """
+    def __init__(self, name, inv, health, current_location):
+        """ Instantiates the name, inv, health and current location of a character.
 
         Args:
-            new_loc (str): The new location of the player.
+            name (str): Used to differentiate the enemy and non-enemy characters.
+            inv (list): A list of items the player currently holds.
+            health (int): Current and max health of the characters.
+            current_location (str): The current location of the player.
         """
-        self.current_location = new_loc
+        self.name = name
+        self.inv = inv
+        self.health = health
+        self.health_max = health
+        self.current_location = current_location 
 
+        self.weapon = old_sword
+
+    def attack(self, target):
+        """Attack methods for the class: Character
+
+        Args:
+            target (str): Target is a parameter which the damage is dealt to.
+        """
+        target.health -= self.weapon
+        # Sets target health as max health and min to 0.
+        target.health = max(target.health, 0)
+        print(f"{self.name} dealt {self.weapon.damage} to {target.name} with {self.weapon.name}")
+
+
+class Player(Character):
+
+    """Player's attributes."""
+
+    def __init__(self, name, inv, health):
+        super().__init__(name=name, inv=inv, health=health, current_location='A')
+
+        self.default_weapon = self.weapon
 
     def inventory(self,item):
         """Method for adding items into the player's inventory.
@@ -102,34 +81,30 @@ class Player:
             str: The items in the player's inventory.
         """
         if item in NESTED_DICT_LIST[self.current_location]['items']:
-            self.inv.append(item)
-            NESTED_DICT_LIST[self.current_location]['items'].remove(item)
-            return self.inv
-        return False
+                item_instance = NESTED_DICT_LIST[self.current_location]['items']
+                if isinstance(item_instance, list):
+                    item_instance = item_instance[0] # Only one weapon per location.
+                self.inv.append(item_instance)
+                NESTED_DICT_LIST[self.current_location]['items'] = []  # Removes item from the location.
+                update_pick_up_button()
+                output.config(state='normal')
+                output.insert(tk.END,
+                            (f"\nYou have picked up the item: {item}!\n"))
+                return self.inv
 
-    def item_remove(self,remove):
-        """Method for when the item is removed from inventory.
-
-        Args:
-            item (str): The item the player holds.
-        """
-
-
-    def inv_empty(self):
-        """Return 'None' when inventory is empty.
-
-        Returns:
-            str: output for when the inventory is empty.
-        """
         if not self.inv:
-            return "You have nothing in your inventory."
+            return "There is nothing in your inventory."
         else:
-            return f"Inventory: {self.inv}"
+            pass
 
+    # add if statement
+    def equip(self, weapon):
+        self.weapon = weapon
+        print(f"{self.name} has equipped {self.weapon.name}")
 
-    def number_of_tries(self):
-        """Checks how many paper, rubber and twink there are in player's inventory.
-        """
+    def drop(self):
+        print(f"{self.name} has dropped the {self.weapon.name}")
+        self.weapon = self.default_weapon
 
 
     def move(self, dest):
@@ -144,7 +119,85 @@ class Player:
             self.current_location = dest # Sets dest to the current location.
             return dest
         return False
+
+class Enemy(Character):
+    """A subclass for the character class — the enemy. 
+    """
+    def __init__(self, name, inv, health, current_location, weapon):
+        super().__init__(name, inv, health, current_location)
+        self.weapon = weapon
+
+
+class Item:
+    """Docstring for the weapons the characters use.
+    """
+    def __init__(self, name, item_desc, damage, value):
+        self.name = name
+        self.item_desc = item_desc
+        self.damage = damage
+        self.value = value
+
+    def __str__(self):
+        """String representation of the Weapon object."""
+        return f"{self.name}, {self.item_desc}, {self.damage}, {self.value}"
     
+class Weapon(Item):
+    """Subclass for weapons.
+
+    Args:
+        Item (str)): Item is a superclass which the Weapon class uses as a blueprint.
+    """
+    def __init__(self, name, item_desc, damage, value):
+        # Calls back to the superclass.
+        super().__init__(name=name, item_desc=item_desc, damage=damage, value=value)
+
+# Default weapon of the player.
+fist = Weapon(name="Fist",
+                   item_desc="Fists",
+                   damage=1,
+                   value=2)
+
+old_sword = Weapon(name="Old Sword",
+                   item_desc="An old rusty sword covered with dry blood of fallen soldiers.",
+                   damage=3,
+                   value=5)
+
+# For enemies.
+dagger = Weapon(name="Dagger",
+                   item_desc="A sharp dagger soaked with bright red blood.",
+                   damage=5,
+                   value=6)
+
+
+sword = Weapon(name="Sword",
+                   item_desc="A silver sword which was taken from a dead knight.",
+                   damage=7,
+                   value=10)
+
+
+dragon_slayer = Weapon(name="Legendary Dragon Slayer",
+                   item_desc="A greatsword that weighs similar to Earth but weightless to the One.",
+                   damage=20,
+                   value=20)
+
+
+key_floor_2 = Item(name="Silver Key",
+                   item_desc="A silver key to Floor 2",
+                   damage=0,
+                   value=20)
+
+
+key_floor_3 = Item(name="Gold Key",
+                   item_desc="A gold key to Floor 3",
+                   damage=0,
+                   value=20)
+
+
+# Update the 'items' values in the NESTED_DICT_LIST with weapon instances
+NESTED_DICT_LIST["A"]["items"] = old_sword.name  # Assign the old_sword instance to location A
+NESTED_DICT_LIST["B"]["items"] = sword.name  # Assign the sword instance to location B
+NESTED_DICT_LIST["D"]["items"] = key_floor_2.name  # Assign the silver_key instance to location D
+
 
 class Map:
     """Map for the game."""
@@ -174,11 +227,14 @@ class Location:
         self.items = NESTED_DICT_LIST[player.current_location]['items']
         self.next_loc = NESTED_DICT_LIST[player.current_location]['next_loc']
 
-    def check_items(self):
+    def check_items(self, loc):
         """Checks if there are any items in the location.
         """
-        if NESTED_DICT_LIST[player.current_location]['items'] != ' ':
-            return f"You have found: {''.join(NESTED_DICT_LIST[player.current_location]['items'])}"
+        if loc:
+            if isinstance(loc, list):  # Check if loc is a list
+                return f"You have found: {', '.join(loc)}"
+            else:
+                return f"You have found: {loc}"
         else:
             return "There are no obtainable items in this location."
 
@@ -188,7 +244,8 @@ class Location:
         return f"{self.loc_name} {self.desc} {self.items} {self.next_loc}"
 
 
-player = Player(0)
+player = Player('hero',[],100)
+enemy = Enemy('enemy',[],100, 'A', dagger)
 location = Location()
 
 
@@ -202,7 +259,7 @@ root = tk.Tk()
 root.title('TOR')
 
 # Window geometry
-root.geometry('800x700')
+root.geometry('1100x900')
 # root.resizable('False','False')
 
 # Title
@@ -236,13 +293,25 @@ def toggle_items_button():
 
     items = NESTED_DICT_LIST[player.current_location]["items"]
 
-   # Checks if items is a string or a list
     if isinstance(items, str):
+        items = [items]
+    elif isinstance(items, Item):
         items = [items]
 
     for item in items:
-        if item in item_list:  # Checks if the item exists in the item_list
-            item_buttons[item].pack(side=tk.LEFT)
+        item_name = item  # Access the name attribute of the Weapon object
+        item_buttons[item_name].pack(side=tk.LEFT)
+
+
+def update_pick_up_button():
+    """ This function shows the 'start_pick_up' button 
+        if there are items in the location.
+    """
+    items = NESTED_DICT_LIST[player.current_location]["items"]
+    if any(items) and any(item.strip() for item in items):
+        start_pick_up.pack()
+    else:
+        start_pick_up.pack_forget()
 
 
 def update_player_loc(updated_loc):
@@ -252,32 +321,40 @@ def update_player_loc(updated_loc):
     """
     # Changes the location of the player on the player's stats menu.
     player_stats.config(state='normal')  # Enables editing
-    player_stats.delete('end-3l', tk.END)  # Clears the previous text
-    player_stats.insert(tk.END,
-                        (f"\nYou are currently in location: {updated_loc}")) # Insert current loc
+    player_stats.delete('1.0', '3.0')  # Clears the previous text
+    player_stats.insert('1.0',
+                        (f"\nYou are currently in location: {updated_loc}\n")) # Insert current loc
     player_stats.config(state='disabled')  # Disable user editing
 
-    # Notify's player that they have moved.
+    # Notifies player that they have moved.
     output.config(state='normal')
     output.insert(tk.END,
                         (f"\nYou have moved to location: {updated_loc}\n"))
     output.insert(tk.END,
-                (f"\n{show_location_info()}\n"))
+                (f"\n{show_location_info()}\n")) # Prints the location's info
     output.config(state='disabled')
 
-    toggle_location_buttons() # Initialises the buttons to change & show
+    toggle_location_buttons() # Initialises the buttons to change & show -
                               # whenever the player's location updates.
+
+    update_pick_up_button() # Checks if there are items in the location.
 
 
 def update_player_inv(updated_inv):
     """
-        Updates the player's inventory on the output text box.
+        Updates the player's inventory on the player's stats text box.
     """
     player_stats.config(state='normal')
-    player_stats.delete('2.0', '2.end')
-    player_stats.insert(tk.END,
-                        (f"Inventory: {updated_inv}"))
+    player_stats.delete('3.0', tk.END)
+    player_stats.insert('3.0',
+                        (f"\nInventory:  {' , '.join(updated_inv)}\n"))
     player_stats.config(state='disabled')
+    player_stats.see('end')
+
+    # Checks if item has been picked up - removes the item button.
+    for item in updated_inv:
+        if item in item_buttons:  # Checks if the item exists in the item_list
+            item_buttons[item].pack_forget()
 
 
 def show_location_info():
@@ -285,22 +362,22 @@ def show_location_info():
     # Matches the updated location to it's dictionary and takes it.
     loc_info = NESTED_DICT_LIST[player.current_location]
     desc = f"You are currently at: {loc_info['desc']}" # Takes the 'desc' of that location.
-    items = location.check_items() # Takes the 'items' of that location.
+    items = location.check_items(NESTED_DICT_LIST[player.current_location]['items']) # Takes the 'items' of that location.
     next_locs = f"Your next possible locations are: {' '.join(loc_info['next_loc'])}" # List to str.
 
     return f"{desc}\n{items}\n{next_locs}"
 
 
-# Text box for the player's current location and items in inventory.
+# Default info for the text box for the player's current location and items in inventory.
 player_stats = Text(root, fg="white", height="13px")
-player_stats.insert('1.0',
-                    (f"\n{player.inv_empty()}\n"))
+player_stats.insert('3.0',
+                    (f"\n{player.inventory('none')}\n"))
 player_stats.insert('1.0',
                     (f"\nYou are currently in location: {player.current_location}\n"))
 player_stats["state"]="disabled"
 
 
-# Output text box for player's actions.
+# Default info for the output text box for player's actions.
 # TODO make the text box automatically scroll at the bottom. (scrollable)
 output = Text(root, height=25, width=90, bg="black")
 output.insert('1.0',
@@ -311,8 +388,10 @@ output.insert(tk.END,
 output["state"]="disabled" # Disable user editing
 output.see('end')
 
+
 # Parent button which toggles the sub buttons for items.
 start_pick_up = Button(root, text="Pick up item", command=toggle_items_button)
+
 
 # Item buttons which are toggled by the parent button: start_pick_up
 item_buttons = {
@@ -331,11 +410,11 @@ item_buttons = {
                 width=8,
                 text="Legendary Dragon Slayer",
                 command=lambda: update_player_inv(player.inventory("Legendary Dragon Slayer"))),
-    "Silver Key to Floor 2": Button(root,
+    "Silver Key": Button(root,
                 height=10,
                 width=10,
-                text="Silver Key to Floor 2",
-                command=lambda: update_player_inv(player.inventory("Silver Key to Floor 2"))),
+                text="Silver Key",
+                command=lambda: update_player_inv(player.inventory("Silver Key"))),
     "Golden Key to Floor 3": Button(root,
                 height=2,
                 width=8,
@@ -385,7 +464,6 @@ loc_buttons = {
 
 player_stats.pack()
 output.pack()
-start_pick_up.pack()
 start_move.pack()
 
 root.mainloop()
