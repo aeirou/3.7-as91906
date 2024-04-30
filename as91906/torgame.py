@@ -1,6 +1,6 @@
 """Module docstring for import rand"""
 import tkinter as tk
-from tkinter import Label, Text, Button
+from tkinter import *
 
 
 # Location list.
@@ -49,7 +49,7 @@ class Character:
         self.inv = inv
         self.health = health
         self.health_max = health
-        self.current_location = current_location 
+        self.current_location = current_location
 
         self.weapon = old_sword
 
@@ -80,17 +80,21 @@ class Player(Character):
         Returns:
             str: The items in the player's inventory.
         """
+
         if item in NESTED_DICT_LIST[self.current_location]['items']:
-                item_instance = NESTED_DICT_LIST[self.current_location]['items']
-                if isinstance(item_instance, list):
-                    item_instance = item_instance[0] # Only one weapon per location.
-                self.inv.append(item_instance)
-                NESTED_DICT_LIST[self.current_location]['items'] = []  # Removes item from the location.
-                update_pick_up_button()
-                output.config(state='normal')
-                output.insert(tk.END,
-                            (f"\nYou have picked up the item: {item}!\n"))
-                return self.inv
+
+            item_instance = NESTED_DICT_LIST[self.current_location]['items']
+
+            if isinstance(item_instance, list):
+                item_instance = item_instance[0] # Only one weapon per location.
+
+            self.inv.append(item_instance)
+            NESTED_DICT_LIST[self.current_location]['items'] = []  # Removes item from the location.
+            update_pick_up_button()
+            output.config(state='normal')
+            output.insert(tk.END,
+                        (f"\nYou have picked up the item: {item}!\n"))
+            return self.inv
 
         if not self.inv:
             return "There is nothing in your inventory."
@@ -99,11 +103,19 @@ class Player(Character):
 
     # add if statement
     def equip(self, weapon):
-        self.weapon = weapon
-        print(f"{self.name} has equipped {self.weapon.name}")
+        """Equip method for the player.
+
+        Args:
+            weapon (str): The chosen weapon for the player.
+        """
+        if weapon in self.inv:
+            self.weapon = weapon
+            print(f"{self.name} has equipped {self.weapon.name}!")
 
     def drop(self):
-        print(f"{self.name} has dropped the {self.weapon.name}")
+        """Drop method for the player.
+        """
+        print(f"{self.name} has dropped the {self.weapon.name}!")
         self.weapon = self.default_weapon
 
 
@@ -112,7 +124,7 @@ class Player(Character):
            available from the current location of the player.
 
         Returns:
-            str: the new location of player.
+            dest (str): The new location of the player.
         """
         # Checks if dest is in the value: 'next_loc' of the current location.
         if dest in NESTED_DICT_LIST[self.current_location]["next_loc"]:
@@ -140,7 +152,7 @@ class Item:
     def __str__(self):
         """String representation of the Weapon object."""
         return f"{self.name}, {self.item_desc}, {self.damage}, {self.value}"
-    
+
 class Weapon(Item):
     """Subclass for weapons.
 
@@ -162,16 +174,19 @@ old_sword = Weapon(name="Old Sword",
                    damage=3,
                    value=5)
 
-# For enemies.
 dagger = Weapon(name="Dagger",
-                   item_desc="A sharp dagger soaked with bright red blood.",
-                   damage=5,
-                   value=6)
+                item_desc="A sharp dagger soaked with bright red blood.",
+                damage=5,
+                value=6)
 
+bow = Weapon(name="Bow",
+             item_desc="A short bow used by the Gremlins that wander the forest.",
+             damage=9,
+             value=8)
 
 sword = Weapon(name="Sword",
                    item_desc="A silver sword which was taken from a dead knight.",
-                   damage=7,
+                   damage=10,
                    value=10)
 
 
@@ -245,7 +260,8 @@ class Location:
 
 
 player = Player('hero',[],100)
-enemy = Enemy('enemy',[],100, 'A', dagger)
+goblin = Enemy('Goblin',[],100, 'A', dagger)
+gremlin = Enemy('Gremlin',[],100, 'A', bow)
 location = Location()
 
 
@@ -387,7 +403,6 @@ output.insert(tk.END,
                 (f"\n{show_location_info()}\n"))
 output["state"]="disabled" # Disable user editing
 output.see('end')
-
 
 # Parent button which toggles the sub buttons for items.
 start_pick_up = Button(root, text="Pick up item", command=toggle_items_button)
