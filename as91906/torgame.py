@@ -4,9 +4,9 @@ import tkinter as tk
 # Location list.
 NESTED_DICT_LIST = {
     "A":{
-        "desc": "a battlefield filled with corpses and rusty swords.", # fight 
+        "desc": "a battlefield filled with corpses and rusty swords.", 
         "items": [],
-        "enemy": " ",
+        "enemy": '',
         "next_loc": ["B"]
     },
     "B":{
@@ -17,20 +17,20 @@ NESTED_DICT_LIST = {
     "C":{
         "desc": "an old ruin of a shack.",
         "items": [],
-        "enemy": " ",
+        "enemy": '',
         "next_loc": ["B", "E",]
     },
     "D":{
         "desc": "a cave that hold an important treasure.",
         "items": [],
-        "enemy": " ",
+        "enemy": '',
         "next_loc": ["B"]
     },
     "E":{
-        "desc": "Gate to Floor 2",
+        "desc": "Gate to the top",
         "items": [],
-        "enemy": " ",
-        "next_loc": ["C","F"]
+        "enemy": '',
+        "next_loc": ["C"]
     }}
 
 
@@ -49,10 +49,9 @@ class Character:
         self.name = name
         self.inv = inv
         self.health = health
-        self.health_max = health
         self.current_location = current_location
 
-        self.weapon = fist
+        self.weapon = fist # default weapon is fist
 
     def attack(self, target):
         """Attack methods for the class: Character
@@ -70,15 +69,19 @@ class Player(Character):
     def __init__(self, name, inv, health):
         super().__init__(name=name, inv=inv, health=health, current_location='A')
 
-        self.default_weapon = self.weapon
+        self.default_weapon = self.weapon # sets the default weapon
 
 
     def inventory(self):
         """Checks if inventory is empty."""
         if self.inv:
-            return self.inv
-        else:
-            return f"Nothing in {self.name}'s inventory."
+        # check if the inventory contains instances of Weapon
+            weapon_names = [item.name for item in self.inv if isinstance(item, Weapon)]
+            if weapon_names:
+                return f"{', '.join(weapon_names)}"
+            else:
+                return f"Nothing in {self.name}'s inventory."
+        return f"Nothing in {self.name}'s inventory."
 
     def pick_up(self, item):
         """Method for adding items into the player's inventory.
@@ -86,6 +89,7 @@ class Player(Character):
         Returns:
             str: The items in the player's inventory.
         """
+        # checks if the item is in the list of the items in the current location of the player.
         if item in NESTED_DICT_LIST[self.current_location]['items']:
             self.inv.append(item)
             NESTED_DICT_LIST[self.current_location]['items'].remove(item) # Remove item from loc
@@ -98,16 +102,9 @@ class Player(Character):
         Args:
             weapon (str): The chosen weapon for the player.
         """
+        # checks if weapon is in the player's inventory then sets it as the weapon
         if weapon in self.inv:
             self.weapon = weapon
-
-
-    def drop(self):
-        """Drop method for the player.
-        """
-        print(f"{self.name} has dropped the {self.weapon.name}!")
-        self.weapon = self.default_weapon
-
 
     def move(self, dest):
         """Move method for player: Checks if the new location is
@@ -116,25 +113,54 @@ class Player(Character):
         Returns:
             dest (str): The new location of the player.
         """
-        # Checks if dest is in the value: 'next_loc' of the current location.
+        # checks if dest is in the value: 'next_loc' of the current location
         if dest in NESTED_DICT_LIST[self.current_location]["next_loc"]:
-            self.current_location = dest # Sets dest to the current location.
+            self.current_location = dest # sets dest to the current location
             return dest
         return False
+
+    def check_items(self, loc):
+        """Checks if there are any items in the location.
+        """
+        if loc:
+            if isinstance(loc, list):  # check if loc is a list
+                item_names = []
+                for item in loc:
+                    if isinstance(item, Weapon):
+                        item_names.append(item.name)
+                    else:
+                        item_names.append(str(item))  # Convert non-Weapon items to string
+                return f"{self.name} has found: {', '.join(item_names)}"
+        return "There are no obtainable items in this location."
 
 
 class Enemy(Character):
     """A subclass for the character class — the enemy. 
     """
     def __init__(self, name, inv, health, current_location, weapon):
+        """_summary_
+
+        Args:
+            name (str): the name of the enemy.
+            health (int): the health of the enemy
+            current_location (str): the current location of the enemy (where they are set to).
+            weapon (object): the weapon object the enemy holds.
+        """
         super().__init__(name, inv, health, current_location)
         self.weapon = weapon
 
 
 class Item:
-    """Docstring for the weapons the characters use.
-    """
+    """The items (including weapons) the character use."""
     def __init__(self, name, item_desc, damage, value):
+        """Initialises name, item_desc, damage and value
+
+        Args:
+            name (str): name of the item
+            item_desc (str): the description of the item
+            damage (int): the damage input of the item
+            value (int): the value of the item
+        """
         self.name = name
         self.item_desc = item_desc
         self.damage = damage
@@ -146,49 +172,20 @@ class Item:
 
 
 class Weapon(Item):
-    """Subclass for weapons.
+    """Subclass for weapons from the superclass Items.
 
     Args:
         Item (str)): Item is a superclass which the Weapon class uses as a blueprint.
     """
     def __init__(self, name, item_desc, damage, value):
-        # Calls back to the superclass.
         super().__init__(name=name, item_desc=item_desc, damage=damage, value=value)
 
-
-class Location:
-    """The locations and its attributes which changes, instead of the nested dict, which is a list.
-
-    Returns:
-        str: loc_name: The name of the location.
-             desc: The description of the location.
-             items: The items in the location which are obtainable.
-             next_loc: The next locations the player can travel to from their current location.
-    """
-
-    # next_loc is the node and is set to 'None' by default
-    def __init__(self, loc_name, desc, items, next_loc):
-        """Docstring for location."""
-        self.loc_name = loc_name
-        self.desc = desc
-        self.items = items
-        self.next_loc = next_loc
-
-    def check_items(self, loc):
-        """Checks if there are any items in the location.
-        """
-        if loc:
-            if isinstance(loc, list):  # Check if loc is a list
-                return f"{player.name} has found: {', '.join(loc)}"
-        else:
-            return "There are no obtainable items in this location."
+    def __str__(self):
+            """String representation of the Weapon object."""
+            return f"{self.name}, {self.item_desc}, {self.damage}, {self.value}"
 
 
-    def __repr__(self):
-        """Prints out location name, description and the next locations."""
-        return f"{self.loc_name} {self.desc} {self.items} {self.next_loc}"
-
-
+# weapon and item objects for the player and the enemies
 # Default weapon of the player.
 fist = Weapon(name="Fist",
                    item_desc="Fists",
@@ -204,7 +201,7 @@ old_sword = Weapon(name="Old Sword",
 
 dagger = Weapon(name="Dagger",
                 item_desc="A sharp dagger soaked with bright red blood.",
-                damage=50,
+                damage=5,
                 value=6)
 
 
@@ -216,26 +213,14 @@ bow = Weapon(name="Bow",
 
 club = Weapon(name="Club",
              item_desc="A huge club on carried by high orcs.",
-             damage=9,
+             damage=10,
              value=9)
 
 
 sword = Weapon(name="Sword",
                    item_desc="A silver sword which was taken from a dead knight.",
-                   damage=10,
-                   value=10)
-
-
-dragon_slayer = Weapon(name="Legendary Dragon Slayer",
-                   item_desc="A greatsword that weighs similar to Earth but weightless to the One.",
-                   damage=20,
-                   value=20)
-
-
-key_floor_2 = Item(name="Silver Key",
-                   item_desc="A silver key to Floor 2",
-                   damage=0,
-                   value=20)
+                   damage=11,
+                   value=11)
 
 
 key_floor_3 = Item(name="Gold Key",
@@ -244,27 +229,41 @@ key_floor_3 = Item(name="Gold Key",
                    value=20)
 
 
-# Update the 'items' values in the NESTED_DICT_LIST with weapon instances
+# adds the items into the 'items' key of the specific location.
 NESTED_DICT_LIST["A"]["items"] = [old_sword, dagger]
 NESTED_DICT_LIST["B"]["items"] = [sword]
-NESTED_DICT_LIST["D"]["items"] = [key_floor_2]
+NESTED_DICT_LIST["D"]["items"] = [key_floor_3]
 
 
-goblin = Enemy('Goblin', ['Dagger'], 100, NESTED_DICT_LIST["C"]['enemy'], dagger)
+# enemy objects for the enemy subclass - the enemies the player will encounter.
+goblin = Enemy(name='Goblin',
+               inv=["Dagger"],
+               health=100,
+               current_location=NESTED_DICT_LIST["D"]['enemy'],
+               weapon=dagger)
 
 
-gremlin = Enemy('Gremlin', ['Bow'], 100, NESTED_DICT_LIST["D"]['enemy'], bow)
+gremlin = Enemy(name='Gremlin',
+                inv=["Bow"],
+                health=100,
+                current_location=NESTED_DICT_LIST["C"]['enemy'],
+                weapon=bow)
 
 
-high_orcs = Enemy('High Orcs', ['Club'], 100, NESTED_DICT_LIST["E"]['enemy'], club)
+high_orc = Enemy(name='High Orc',
+                 inv=["Club"],
+                 health=100,
+                 current_location=NESTED_DICT_LIST["E"]['enemy'],
+                 weapon=club)
 
-
+# adds the enemy into the 'enemy' key of the specific location.
 NESTED_DICT_LIST["C"]["enemy"] = goblin
 NESTED_DICT_LIST["D"]["enemy"] = gremlin
-NESTED_DICT_LIST["E"]["enemy"] = high_orcs
+NESTED_DICT_LIST["E"]["enemy"] = high_orc
 
 
-player = Player(name='hero',inv=[],health=100)
+# instantiates the player subclass
+player = Player(name='Hero',inv=[],health=100)
 
 
 class App(tk.Tk):
@@ -272,16 +271,26 @@ class App(tk.Tk):
     def __init__(self):
         super().__init__()
 
+        # calls the instance: player
         self.player = player
 
-        self.title('Tower of Resuscitation')
-        self.geometry('1200x900')
+        self.title('Tower of Resuscitation') # window title
+        self.geometry('1400x800') # window size
+        self.resizable(False, False) # makes the window fixed
+        self.columnconfigure(0, weight=1)
+        self.rowconfigure(0, weight=1)
+        self.rowconfigure(2, weight=1)
+        self.rowconfigure(3, weight=1)
+        self.rowconfigure(4, weight=1)
 
-        self.title_label = tk.Label(self, text='Tower of Resuscitation', font=("Courier", 25))
+        self.title_label = tk.Label(self,
+                                    text='Tower of Resuscitation',
+                                    font=("Courier", 40),
+                                    pady=30)
         self.title_label.pack()
 
         self._frame = None # by default, no frame
-        self.switch_frame(MainInt)
+        self.switch_frame(StartWindow)
 
     def switch_frame(self, frame_class):
         """Destroys current frame and replaces it with a new one."""
@@ -290,6 +299,50 @@ class App(tk.Tk):
             self._frame.destroy()
         self._frame = new_frame
         self._frame.pack()
+
+
+class StartWindow(tk.Frame):
+    """Starting interface for the game."""
+    def __init__(self, parent):
+        super().__init__(parent)
+
+        self.switch_frame = parent.switch_frame
+
+        tk.Label(self, text="Welcome to TOR!",
+                 font=("Courier", 20)).grid(row=0, column=0, padx=50, pady=10)
+        tk.Label(self, text="Press 'Play' to start.",
+                 font=("Courier", 20)).grid(row=1, column=0, padx=50, pady=10)
+
+        tk.Button(self,
+                  height=3,
+                  text="Play",
+                  command=lambda: self.switch_frame(EnterName)).grid(row=2, column=0, padx=50, pady=50)
+
+
+class EnterName(tk.Frame):
+    """Starting interface for the game."""
+    def __init__(self, parent):
+        super().__init__(parent)
+
+        self.player = parent.player
+        self.switch_frame = parent.switch_frame
+
+        tk.Label(self, text="Enter your name:",
+                 font=("Courier", 20)).grid(row=0, column=0, padx=50, pady=50)
+        player_name = tk.StringVar()
+        self.player_name_entry = tk.Entry(self, bg='white',
+                                          fg='black',
+                                          textvariable=player_name,
+                                          font=('calibre', 10, 'normal'))
+        self.player_name_entry.grid(row=1, column=0, pady=50)
+
+        tk.Button(self, text="Enter", height=4,
+                  command=lambda name_var=player_name: self.submit(name_var)).grid(row=2, column=0)
+
+    def submit(self, name_var):
+        """Sets the name of the player."""
+        self.player.name = name_var.get()
+        self.switch_frame(MainInt)
 
 
 class MainInt(tk.Frame):
@@ -302,40 +355,45 @@ class MainInt(tk.Frame):
         # Output frame
         self.output_frame = tk.Text(self,
                                     height=25,
-                                    width=90,
-                                    bg="black",
-                                    fg="white",
+                                    width=84,
+                                    bg="gray",
+                                    fg="black",
                                     state="disabled")
-        self.output_frame.pack()
+        self.output_frame.grid(row=0, column=0, columnspan=2, sticky="nsew")
+
+        self.text_scrollbar = tk.Scrollbar(self,
+                                           orient="vertical",
+                                           command=self.output_frame.yview)
+        self.text_scrollbar.grid(row=0, column=2, sticky="ns")
+        self.output_frame.config(yscrollcommand=self.text_scrollbar.set)
 
         # Player stats frame
         self.player_stats_frame = tk.Text(self,
                                           fg="white",
                                           height="13px",
                                           state="disabled")
-        self.player_stats_frame.pack()
+        self.player_stats_frame.grid(row=1, column=0, columnspan=2, sticky="nsew")
 
         # Move buttons frame
         self.move_frame = tk.Frame(self)
-        self.move_frame.pack()
+        self.move_frame.grid(row=2, column=0, pady=10)
         self.move_button = tk.Button(self.move_frame,
                                      text="Move",
                                      command=self.toggle_loc_buttons)
-        self.move_button.pack()
+        self.move_button.grid(row=0, column=0, padx=10)
         self.location_buttons_frame = tk.Frame(self.move_frame)
 
         # PickUp frame
         self.pick_up_frame = tk.Frame(self)
-        self.pick_up_frame.pack()
+        self.pick_up_frame.grid(row=2, column=1, pady=10)
         self.pick_up_button = tk.Button(self.pick_up_frame,
                                         text="Pick up item",
                                         command=self.toggle_item_buttons)
-
-        self.pick_up_button.pack()
+        self.pick_up_button.grid(row=0, column=0, padx=10)
         self.item_buttons_frame = tk.Frame(self.pick_up_frame)
 
-        tk.Button(self, text="Fight",
-                  command=lambda: parent.switch_frame(Combat)).pack()
+        self.fight_button = tk.Button(self, text="Fight", command=lambda: parent.switch_frame(Combat))
+
 
         # order of display
         self.update_output()
@@ -343,44 +401,56 @@ class MainInt(tk.Frame):
         self.update_move_buttons()
         self.update_pick_up_buttons()
 
+    def check_for_enemy(self):
+        """Check if there is an enemy in the current location and show the fight button."""
+        if NESTED_DICT_LIST[self.player.current_location]['enemy'] == goblin or gremlin:
+            self.fight_button.grid(row=3, column=0, columnspan=2, pady=10)
+            self.output_frame.config(state='normal')
+            self.output_frame.insert(tk.END,
+                                     f"\nYou have found a {NESTED_DICT_LIST[self.player.current_location]['enemy'].name}! Click 'fight' to initiate battle!\n")
+            self.output_frame.config(state='disabled')
+            self.output_frame.yview_moveto(1.0)
+        else:
+            self.fight_button.grid_forget()
+
     def update_output(self):
         """Updates the output box."""
         self.output_frame.config(state='normal')
-        self.output_frame.delete(tk.END)
-        self.output_frame.insert('1.0',
-                f"\n{player.name} is currently in location: {player.current_location}\n")
         self.output_frame.insert(tk.END, f"\n{self.loc_info()}\n")
         self.output_frame.config(state='disabled')
+
+        # automatically scroll down to the bottom
+        self.output_frame.yview_moveto(1.0)
 
     def update_player_stats(self):
         """Updates the player stats text box."""
         self.player_stats_frame.config(state='normal')
         self.player_stats_frame.delete('1.0', tk.END)
         self.player_stats_frame.insert('1.0',
-                            f"\nYou are currently in location: {player.current_location}\n")
+                                       f"\nYou are currently in location: {player.current_location}\n")
         self.player_stats_frame.insert('3.0', f"\nInventory: {player.inventory()}\n")
         self.player_stats_frame.config(state='disabled')
 
     def update_move_buttons(self):
         """Updates the visible location buttons for each possible route of a location."""
         for widget in self.location_buttons_frame.winfo_children():
-            widget.destroy()  # Destroy existing buttons
+            widget.destroy()  # destroy existing buttons
 
         for loc in NESTED_DICT_LIST[player.current_location]['next_loc']:
             button = tk.Button(self.location_buttons_frame,
                                height=2,
                                width=8,
                                text=loc,
-                               command=lambda loc=loc: self.update_player_loc(loc))
-            button.pack(side=tk.TOP)
+                               command=lambda loc=loc: [self.update_player_loc(loc), 
+                                                        self.check_for_enemy()])
+            button.pack(side="left", padx=5, pady=5)
 
     def toggle_loc_buttons(self):
         """Determines the visibility of the location buttons."""
         if self.location_buttons_frame.winfo_ismapped():
-            self.location_buttons_frame.pack_forget()
+            self.location_buttons_frame.grid_forget()
         else:
-            self.location_buttons_frame.pack()
-            self.location_buttons_frame.lift()
+            self.location_buttons_frame.grid(row=2, column=1, pady=10, sticky="w")
             self.update_move_buttons()
 
     def update_player_loc(self, updated_loc):
@@ -393,16 +463,28 @@ class MainInt(tk.Frame):
 
     def update_pick_up_buttons(self):
         """Updates the visible item buttons depending on the player's location."""
-        for widget in self.item_buttons_frame.winfo_children():
-            widget.destroy()  # Destroy existing buttons
+        # check if there are items in the current location
+        if NESTED_DICT_LIST[player.current_location]['items']:
+            # if there are items display the pick up button and item buttons
+            for widget in self.item_buttons_frame.winfo_children():
+                widget.destroy()  # Destroy existing buttons
 
-        for item in NESTED_DICT_LIST[player.current_location]['items']:
-            button = tk.Button(self.item_buttons_frame,
-                               height=2,
-                               width=8,
-                               text=item,
-                               command=lambda item=item: self.update_player_inv(item))
-            button.pack(side=tk.TOP)
+            for item in NESTED_DICT_LIST[player.current_location]['items']:
+                button = tk.Button(self.item_buttons_frame,
+                                height=2,
+                                width=8,
+                                text=item.name,
+                                command=lambda item=item: self.update_player_inv(item))
+                button.pack(side="left", padx=5, pady=5)
+            
+            # Display the pickvup button
+            self.pick_up_button.grid(row=0, column=0, padx=10)
+            self.item_buttons_frame.grid(row=1, column=0, pady=10, sticky="w")
+        else:
+            # If there are no items hide the pick up button
+            self.pick_up_button.grid_forget()
+            self.item_buttons_frame.grid_forget()
+
 
     def update_player_inv(self, item):
         """Updates the player's inventory."""
@@ -415,18 +497,19 @@ class MainInt(tk.Frame):
     def toggle_item_buttons(self):
         """Shows the item buttons."""
         if self.item_buttons_frame.winfo_ismapped():
-            self.item_buttons_frame.pack_forget()
+            self.item_buttons_frame.grid_forget()
         else:
-            self.item_buttons_frame.pack()
+            self.item_buttons_frame.grid(row=3, column=1, pady=10, sticky="w")
             self.update_pick_up_buttons()
 
     def loc_info(self):
         """Returns the location's info."""
-        loc_info = NESTED_DICT_LIST[player.current_location]
-        desc = f"{player.name} is currently at {loc_info['desc']}"
-        items = loc_info['items']
-        next_locs = f"{player.name}'s next routes are: {' '.join(loc_info['next_loc'])}"
-        return f"{desc}\n{items}\n{next_locs}"
+        loc_info = NESTED_DICT_LIST[self.player.current_location]
+        location = f"{self.player.name} is currently in location: {self.player.current_location}\n"
+        desc = f"{self.player.name} is currently at {loc_info['desc']}"
+        items = player.check_items(loc_info['items'])
+        next_locs = f"{self.player.name}'s next routes are: {' '.join(loc_info['next_loc'])}"
+        return f"{location}\n{desc}\n{items}\n{next_locs}"
 
 
 class Combat(tk.Frame):
@@ -434,83 +517,87 @@ class Combat(tk.Frame):
     def __init__(self, parent):
         super().__init__(parent)
 
-
         self.player = parent.player
         self.switch_frames = parent.switch_frame
 
-        tk.Label(self, text=f"{player.name} is fighting!",
-                 font=("Courier", 20)).pack(side="top", fill="x", padx=50)
+        tk.Label(self, text=f"{player.name} is fighting {NESTED_DICT_LIST[self.player.current_location]['enemy'].name}!",
+                 font=("Courier", 20)).grid(row=1, column=1, padx=100, pady=10)
 
         # buttons and labels for the combat frame
-        self.health = tk.Label(self, text=f"HP: {player.health}",
-                 font=("Courier", 20))
-        self.weapon_dmg = tk.Label(self, text=f"Damage: {player.weapon.damage}",
-                 font=("Courier", 20))
-        self.weapon = tk.Label(self, text=f"Weapon: {player.weapon.name}",
-                 font=("Courier", 20))
+        self.health = tk.Label(self, text=f"HP: {self.player.health}",
+                               font=("Courier", 20))
+        self.enemy_health = tk.Label(self,
+                                     text=f"{NESTED_DICT_LIST[self.player.current_location]['enemy'].name} HP: {NESTED_DICT_LIST[self.player.current_location]['enemy'].health}",
+                               font=("Courier", 20))
+        self.weapon_dmg = tk.Label(self, text=f"Damage: {self.player.weapon.damage}",
+                                   font=("Courier", 20))
+        self.weapon = tk.Label(self, text=f"Weapon: {self.player.weapon.name}",
+                                font=("Courier", 20))
         self.fight_frame = tk.Text(self,
-                                    height=25,
-                                    width=90,
-                                    bg="black",
-                                    fg="white",
-                                    state="disabled")
-        self.return_to_adventure = tk.Button(self, height=5,text="Return to adventure",
-                                             command=lambda: parent.switch_frame(MainInt))
-        self.flee = tk.Button(self, height=5,text="Flee",
-                              command=lambda: parent.switch_frame(MainInt))
-        self.attack = tk.Button(self, height=5,
-                text="Attack",
-                command=lambda: [player.attack(NESTED_DICT_LIST[player.current_location]['enemy']),
-                                NESTED_DICT_LIST[player.current_location]['enemy'].attack(player),
-                                self.update_stats(),
-                                self.update_fight_frame(),
-                                self.character_dead()])
+                                   height=25,
+                                   width=90,
+                                   bg="black",
+                                   fg="white",
+                                   state="disabled")
+        self.text_scrollbar = tk.Scrollbar(self,
+                                           orient="vertical",
+                                           command=self.fight_frame.yview)
+        self.text_scrollbar.grid(row=4, column=0, sticky="ns")
+        self.fight_frame.config(yscrollcommand=self.text_scrollbar.set)
 
+        self.attack = tk.Button(self, height=5,
+                                text="Attack",
+                                command=lambda: [self.player.attack(NESTED_DICT_LIST[self.player.current_location]['enemy']),
+                                                 NESTED_DICT_LIST[player.current_location]['enemy'].attack(player),
+                                                 self.update_stats(),
+                                                 self.update_fight_frame(),
+                                                 self.character_dead(),
+                                                 self.if_win()])
 
         self.equip_buttons = []  # List to store Equip buttons for each item
 
-
         for item in self.player.inv:
-            equip_button = tk.Button(self, height=5, text="Equip",
-                    command=lambda item=item: [self.equip_item(item),self.update_stats()])
+            equip_button = tk.Button(self, height=4, text=item.name,
+                                      command=lambda item=item: [self.equip_item(item),
+                                                                 self.update_stats()])
             self.equip_buttons.append(equip_button)
 
-        for buttons in self.equip_buttons:
-            buttons.pack(side='bottom')
+        for index, button in enumerate(self.equip_buttons):
+            button.grid(row=index + 4, column=3)
 
-
-        # shhow the buttons and labels
-        self.health.pack(side="bottom", fill="x", padx=50 ,pady=10)
-        self.weapon_dmg.pack(side="bottom", fill="x",padx=50 ,pady=10)
-        self.weapon.pack(side="bottom", fill="x",padx=50 ,pady=10)
-        self.fight_frame.pack(side="bottom",fill='both')
-        self.return_to_adventure.pack(side=tk.TOP,expand=True, fill='both')
-        self.flee.pack(side=tk.TOP, expand=True, fill='both',)
-        self.attack.pack(side='top')
-
+        # show the buttons and labels
+        self.health.grid(row=1, column=0, padx=50,)
+        self.enemy_health.grid(row=2, column=0, padx=50,)
+        self.weapon.grid(row=2, column=1, padx=50, pady=10)
+        self.weapon_dmg.grid(row=2, column=2, padx=50,)
+        self.fight_frame.grid(row=4, column=0, columnspan=3)
+        self.attack.grid(row=5, column=0, columnspan=2)
 
     def equip_item(self, item):
         """Method for when the player equips an item"""
         self.player.equip(item)
 
-
     def update_fight_frame(self):
         """Text output for the fight frame box."""
         self.fight_frame.config(state='normal')
-        self.fight_frame.delete(tk.END)
-        self.fight_frame.insert('1.0',
-                                f"\n{player.name} has dealt {player.weapon.damage} to {NESTED_DICT_LIST[player.current_location]['enemy'].name} \n")
-        self.fight_frame.insert('1.0',
-                                f"\n{NESTED_DICT_LIST[player.current_location]['enemy'].name} has dealt {NESTED_DICT_LIST[player.current_location]['enemy'].weapon.damage} to {self.player.name} \n")
+        self.fight_frame.insert(tk.END,
+        f"\n{player.name} has dealt {player.weapon.damage} to {NESTED_DICT_LIST[player.current_location]['enemy'].name} \n")
+        self.fight_frame.insert(tk.END,
+        f"\n{NESTED_DICT_LIST[player.current_location]['enemy'].name} has dealt {NESTED_DICT_LIST[player.current_location]['enemy'].weapon.damage} to {self.player.name} \n")
         self.fight_frame.config(state='disabled')
+
+        # self.fight_frame.yview_moveto(1.0)
 
     def update_stats(self):
         """Updates the text label health of the player."""
         new_health = f"HP: {self.player.health}"
         self.health.configure(text=new_health)
 
+        new_enemy_health = f"{NESTED_DICT_LIST[self.player.current_location]['enemy'].name} HP: {NESTED_DICT_LIST[self.player.current_location]['enemy'].health}"
+        self.enemy_health.configure(text=new_enemy_health)
+
         new_weapon = f"Weapon: {self.player.weapon.name}"
-        self.weapon.configure( text=new_weapon)
+        self.weapon.configure(text=new_weapon)
 
         new_damage = f"Damage: {self.player.weapon.damage}"
         self.weapon_dmg.configure(text=new_damage)
@@ -519,7 +606,33 @@ class Combat(tk.Frame):
         """swtiches frames when the player dies."""
         if self.player.health <= 0:
             self.switch_frames(GameOver)
+        elif NESTED_DICT_LIST[self.player.current_location]['enemy'].health <= 0:
+            self.return_adventure = tk.Button(self,
+                                              height=4,
+                                              text="Return",
+                                              command=lambda: self.switch_frames(MainInt))
+            self.return_adventure.grid(row=6, column=0, columnspan=2)
+            self.fight_frame.config(state='normal')
+            self.fight_frame.insert('1.0',
+            f"\nYou have defeated {NESTED_DICT_LIST[player.current_location]['enemy'].name}! \n")
+            self.fight_frame.config(state='disabled')
+            enemy_dead = f"{NESTED_DICT_LIST[self.player.current_location]['enemy'].name} has died"
+            self.enemy_health.configure(text=enemy_dead)
+            self.attack.grid_forget()
 
+
+    def if_win(self):
+        """Switches window when the player beats the boss."""
+        if high_orc.health <= 0:
+            self.switch_frames(Win)
+
+class Win(tk.Frame):
+    """A frame for when the player dies."""
+    def __init__(self, parent):
+        tk.Frame.__init__(self, parent)
+
+        tk.Label(self, text="YOU HAVE REACHED THE TOP OF THE TOWER!",
+                 font=("Courier", 50)).pack(side="top", fill="x", padx=50)
 
 class GameOver(tk.Frame):
     """A frame for when the player dies."""
@@ -528,8 +641,6 @@ class GameOver(tk.Frame):
 
         tk.Label(self, text="GAME OVER!",
                  font=("Courier", 50)).pack(side="top", fill="x", padx=50)
-        
-
 
 
 def main():
