@@ -1,4 +1,8 @@
-"""Docstring for the imported modules."""
+"""A short RPG game text-based game using Tkinter as a GUI.
+By Aeirone Felipe
+
+Last modified: 3 May 2024
+"""
 import tkinter as tk
 
 # Location list.
@@ -59,6 +63,7 @@ class Character:
         Args:
             target (str): Target is a parameter which the damage is dealt to.
         """
+         # target's health - the damage output of the weapon
         target.health -= self.weapon.damage
 
 
@@ -181,8 +186,8 @@ class Weapon(Item):
         super().__init__(name=name, item_desc=item_desc, damage=damage, value=value)
 
     def __str__(self):
-            """String representation of the Weapon object."""
-            return f"{self.name}, {self.item_desc}, {self.damage}, {self.value}"
+        """String representation of the Weapon object."""
+        return f"{self.name}, {self.item_desc}, {self.damage}, {self.value}"
 
 
 # weapon and item objects for the player and the enemies
@@ -277,28 +282,34 @@ class App(tk.Tk):
         self.title('Tower of Resuscitation') # window title
         self.geometry('1400x800') # window size
         self.resizable(False, False) # makes the window fixed
+
+        # the grid of the window
         self.columnconfigure(0, weight=1)
         self.rowconfigure(0, weight=1)
         self.rowconfigure(2, weight=1)
         self.rowconfigure(3, weight=1)
         self.rowconfigure(4, weight=1)
 
+        # label
         self.title_label = tk.Label(self,
                                     text='Tower of Resuscitation',
                                     font=("Courier", 40),
                                     pady=30)
         self.title_label.pack()
 
+        # a method to swtich frames currently shown
         self._frame = None # by default, no frame
+
+        # passes the frames as a parameter
         self.switch_frame(StartWindow)
 
     def switch_frame(self, frame_class):
         """Destroys current frame and replaces it with a new one."""
         new_frame = frame_class(self)
-        if self._frame is not None:
+        if self._frame is not None: # if a frame is showing, it destroys it
             self._frame.destroy()
-        self._frame = new_frame
-        self._frame.pack()
+        self._frame = new_frame # sets the frame to the new frame
+        self._frame.pack() # shows the frame
 
 
 class StartWindow(tk.Frame):
@@ -313,23 +324,31 @@ class StartWindow(tk.Frame):
         tk.Label(self, text="Press 'Play' to start.",
                  font=("Courier", 20)).grid(row=1, column=0, padx=50, pady=10)
 
+        # this button destroys the frame and switches it with the frame EnterName
         tk.Button(self,
                   height=3,
                   text="Play",
-                  command=lambda: self.switch_frame(EnterName)).grid(row=2, column=0, padx=50, pady=50)
+                  command=lambda: self.switch_frame(EnterName)).grid(row=2,
+                                                                     column=0,
+                                                                     padx=50,
+                                                                     pady=50)
 
 
 class EnterName(tk.Frame):
-    """Starting interface for the game."""
+    """Frame for the player's name."""
     def __init__(self, parent):
         super().__init__(parent)
 
+        # inherits the instantiation from the class App.
         self.player = parent.player
+
+        # inherits the method switch_frame() to switch frame
         self.switch_frame = parent.switch_frame
 
+        # take the player's name input
         tk.Label(self, text="Enter your name:",
                  font=("Courier", 20)).grid(row=0, column=0, padx=50, pady=50)
-        player_name = tk.StringVar()
+        player_name = tk.StringVar() # passes it to StringVar()
         self.player_name_entry = tk.Entry(self, bg='white',
                                           fg='black',
                                           textvariable=player_name,
@@ -341,8 +360,9 @@ class EnterName(tk.Frame):
 
     def submit(self, name_var):
         """Sets the name of the player."""
+        # from the variable name_var, it gets the player's name input.
         self.player.name = name_var.get()
-        self.switch_frame(MainInt)
+        self.switch_frame(MainInt) # switches frame to MainInt
 
 
 class MainInt(tk.Frame):
@@ -352,7 +372,7 @@ class MainInt(tk.Frame):
 
         self.player = parent.player
 
-        # Output frame
+        # Output frame - main text box for the MainInt
         self.output_frame = tk.Text(self,
                                     height=25,
                                     width=84,
@@ -361,26 +381,29 @@ class MainInt(tk.Frame):
                                     state="disabled")
         self.output_frame.grid(row=0, column=0, columnspan=2, sticky="nsew")
 
+        # creates a scrollbar for the output box text frame.
         self.text_scrollbar = tk.Scrollbar(self,
                                            orient="vertical",
                                            command=self.output_frame.yview)
         self.text_scrollbar.grid(row=0, column=2, sticky="ns")
-        self.output_frame.config(yscrollcommand=self.text_scrollbar.set)
+        self.output_frame.config(yscrollcommand=self.text_scrollbar.set) # scroll command
 
-        # Player stats frame
+        # Player stats frame which contains inv and player's current loc
         self.player_stats_frame = tk.Text(self,
                                           fg="white",
                                           height="13px",
                                           state="disabled")
         self.player_stats_frame.grid(row=1, column=0, columnspan=2, sticky="nsew")
 
-        # Move buttons frame
+        # frame for the move button
         self.move_frame = tk.Frame(self)
         self.move_frame.grid(row=2, column=0, pady=10)
         self.move_button = tk.Button(self.move_frame,
                                      text="Move",
                                      command=self.toggle_loc_buttons)
         self.move_button.grid(row=0, column=0, padx=10)
+
+        # frame for the chilren buttons which are toggled by the parent: self.move_button
         self.location_buttons_frame = tk.Frame(self.move_frame)
 
         # PickUp frame
@@ -390,63 +413,73 @@ class MainInt(tk.Frame):
                                         text="Pick up item",
                                         command=self.toggle_item_buttons)
         self.pick_up_button.grid(row=0, column=0, padx=10)
+        # frame for the chilren buttons which are toggled by the parent: self.pick_up_button
         self.item_buttons_frame = tk.Frame(self.pick_up_frame)
 
-        self.fight_button = tk.Button(self, text="Fight", command=lambda: parent.switch_frame(Combat))
+        # fight button which switches the frame into class Combat()
+        self.fight_button = tk.Button(self,
+                                      text="Fight",
+                                      command=lambda: parent.switch_frame(CombatFrame))
 
 
-        # order of display
+        # initiates the methods
         self.update_output()
         self.update_player_stats()
         self.update_move_buttons()
         self.update_pick_up_buttons()
 
     def check_for_enemy(self, current_location):
-        """Check if there is an enemy in the current location and show the fight button."""
+        """Check if there is an enemy in the current location to show the fight button."""
         if NESTED_DICT_LIST[current_location].get('enemy'):
             self.fight_button.grid(row=3, column=0, columnspan=2, pady=10)
             self.output_frame.config(state='normal')
             self.output_frame.insert(tk.END,
                                      f"\nYou have found a {NESTED_DICT_LIST[self.player.current_location]['enemy'].name}! Click 'fight' to initiate battle!\n")
             self.output_frame.config(state='disabled')
-            self.output_frame.yview_moveto(1.0)
+            self.output_frame.yview_moveto(1.0) # scrolls to the most recent text in the text box.
         else:
-            self.fight_button.grid_forget()
+            self.fight_button.grid_forget() # if no enemy, it hides the button
 
     def update_output(self):
-        """Updates the output box."""
+        """Updates the content output box."""
         self.output_frame.config(state='normal')
         self.output_frame.insert(tk.END, f"\n{self.loc_info()}\n")
         self.output_frame.config(state='disabled')
 
         # automatically scroll down to the bottom
-        self.output_frame.yview_moveto(1.0)
+        self.output_frame.yview_moveto(1.0) # scrolls to the most recent text in the text box.
 
     def update_player_stats(self):
-        """Updates the player stats text box."""
-        self.player_stats_frame.config(state='normal')
-        self.player_stats_frame.delete('1.0', tk.END)
+        """Updates the content in player stats text box."""
+        self.player_stats_frame.config(state='normal') # enables editing
+        self.player_stats_frame.delete('1.0', tk.END) # deletes everything from line 1 to end
         self.player_stats_frame.insert('1.0',
                                        f"\nYou are currently in location: {player.current_location}\n")
-        self.player_stats_frame.insert('3.0', f"\nInventory: {player.inventory()}\n")
-        self.player_stats_frame.config(state='disabled')
+        self.player_stats_frame.insert('3.0', f"\nInventory: {player.inventory()}\n") # inserts player's inventory
+        self.player_stats_frame.config(state='disabled') # disables editing
 
     def update_move_buttons(self):
         """Updates the visible location buttons for each possible route of a location."""
-        for widget in self.location_buttons_frame.winfo_children():
-            widget.destroy()  # destroy existing buttons
 
+        # this destroys the buttons made from the previous 'next locations'
+        for widget in self.location_buttons_frame.winfo_children(): # a list containing widgets
+            widget.destroy()  # destroys those existing widgets
+
+        # creates a for loop to create each buttons for each locs available from the current loc.
         for loc in NESTED_DICT_LIST[player.current_location]['next_loc']:
             button = tk.Button(self.location_buttons_frame,
                                height=2,
                                width=8,
                                text=loc,
-                               command=lambda loc=loc: [self.update_player_loc(loc), 
-                                                        self.check_for_enemy(self.player.current_location)])
+                               command=lambda loc=loc: [self.update_player_loc(loc), # moves player
+                                                # checks if there are enemies in the loc
+                                                self.check_for_enemy(self.player.current_location)])
             button.pack(side="left", padx=5, pady=5)
 
     def toggle_loc_buttons(self):
         """Determines the visibility of the location buttons."""
+
+        # if the buttons are mapped, they are hidden
         if self.location_buttons_frame.winfo_ismapped():
             self.location_buttons_frame.grid_forget()
         else:
@@ -455,6 +488,7 @@ class MainInt(tk.Frame):
 
     def update_player_loc(self, updated_loc):
         """Updates the player's location."""
+        # calls the method from the class Player() to move the player
         player.move(updated_loc)
         self.update_output()
         self.update_player_stats()
@@ -465,10 +499,11 @@ class MainInt(tk.Frame):
         """Updates the visible item buttons depending on the player's location."""
         # check if there are items in the current location
         if NESTED_DICT_LIST[player.current_location]['items']:
-            # if there are items display the pick up button and item buttons
+            # destroys the previous item buttons of the previous location
             for widget in self.item_buttons_frame.winfo_children():
-                widget.destroy()  # Destroy existing buttons
+                widget.destroy()
 
+            # creates buttons for each item vlues present in the key 'items'
             for item in NESTED_DICT_LIST[player.current_location]['items']:
                 button = tk.Button(self.item_buttons_frame,
                                 height=2,
@@ -477,17 +512,18 @@ class MainInt(tk.Frame):
                                 command=lambda item=item: self.update_player_inv(item))
                 button.pack(side="left", padx=5, pady=5)
             
-            # Display the pickvup button
+            # display the pick up button
             self.pick_up_button.grid(row=0, column=0, padx=10)
             self.item_buttons_frame.grid(row=1, column=0, pady=10, sticky="w")
         else:
-            # If there are no items hide the pick up button
+            # if there are no items hide the pick up button
             self.pick_up_button.grid_forget()
             self.item_buttons_frame.grid_forget()
 
 
     def update_player_inv(self, item):
         """Updates the player's inventory."""
+        # uses the method from the Player() to pick up an item
         player.pick_up(item)
         self.update_output()
         self.update_player_stats()
@@ -496,6 +532,7 @@ class MainInt(tk.Frame):
 
     def toggle_item_buttons(self):
         """Shows the item buttons."""
+        # if the item buttons are shown, it hides it
         if self.item_buttons_frame.winfo_ismapped():
             self.item_buttons_frame.grid_forget()
         else:
@@ -504,47 +541,58 @@ class MainInt(tk.Frame):
 
     def loc_info(self):
         """Returns the location's info."""
-        loc_info = NESTED_DICT_LIST[self.player.current_location]
+        # a method for the current location's information
+        loc_info = NESTED_DICT_LIST[self.player.current_location] # calls player's current location
         location = f"{self.player.name} is currently in location: {self.player.current_location}\n"
         desc = f"{self.player.name} is currently at {loc_info['desc']}"
         items = player.check_items(loc_info['items'])
         next_locs = f"{self.player.name}'s next routes are: {' '.join(loc_info['next_loc'])}"
+
         return f"{location}\n{desc}\n{items}\n{next_locs}"
 
 
-class Combat(tk.Frame):
+class CombatFrame(tk.Frame):
     """Combat frame for the player."""
     def __init__(self, parent):
         super().__init__(parent)
 
+        # inherits the player class
         self.player = parent.player
+        # inherits the switch_frames method
         self.switch_frames = parent.switch_frame
 
         tk.Label(self, text=f"{player.name} is fighting {NESTED_DICT_LIST[self.player.current_location]['enemy'].name}!",
                  font=("Courier", 20)).grid(row=1, column=1, padx=100, pady=10)
 
         # buttons and labels for the combat frame
+        # player's health
         self.health = tk.Label(self, text=f"HP: {self.player.health}",
                                font=("Courier", 20))
+        # enemy's health
         self.enemy_health = tk.Label(self,
                                      text=f"{NESTED_DICT_LIST[self.player.current_location]['enemy'].name} HP: {NESTED_DICT_LIST[self.player.current_location]['enemy'].health}",
                                font=("Courier", 20))
+        # weapon damage display
         self.weapon_dmg = tk.Label(self, text=f"Damage: {self.player.weapon.damage}",
                                    font=("Courier", 20))
+        # weapon currently is being used
         self.weapon = tk.Label(self, text=f"Weapon: {self.player.weapon.name}",
                                 font=("Courier", 20))
+        # text box for the fight info
         self.fight_frame = tk.Text(self,
                                    height=25,
                                    width=90,
                                    bg="black",
                                    fg="white",
                                    state="disabled")
+        # scroll bar for the text box
         self.text_scrollbar = tk.Scrollbar(self,
                                            orient="vertical",
                                            command=self.fight_frame.yview)
         self.text_scrollbar.grid(row=4, column=0, sticky="ns")
-        self.fight_frame.config(yscrollcommand=self.text_scrollbar.set)
+        self.fight_frame.config(yscrollcommand=self.text_scrollbar.set) # scroll command
 
+        # attack button which updates stats, text box, checks if player is dead and if player won
         self.attack = tk.Button(self, height=5,
                                 text="Attack",
                                 command=lambda: [self.player.attack(NESTED_DICT_LIST[self.player.current_location]['enemy']),
@@ -554,18 +602,21 @@ class Combat(tk.Frame):
                                                  self.character_dead(),
                                                  self.if_win()])
 
-        self.equip_buttons = []  # List to store Equip buttons for each item
+        # a list to store the weapons button to equip
+        self.equip_buttons = []
 
+        # creates button for each item in the inventory
         for item in self.player.inv:
             equip_button = tk.Button(self, height=4, text=item.name,
                                       command=lambda item=item: [self.equip_item(item),
                                                                  self.update_stats()])
-            self.equip_buttons.append(equip_button)
+            self.equip_buttons.append(equip_button) # appends to the list of buttons
 
+        # displays the list of buttons
         for index, button in enumerate(self.equip_buttons):
             button.grid(row=index + 4, column=3)
 
-        # show the buttons and labels
+        # order of the widgets
         self.health.grid(row=1, column=0, padx=50,)
         self.enemy_health.grid(row=2, column=0, padx=50,)
         self.weapon.grid(row=2, column=1, padx=50, pady=10)
@@ -575,37 +626,43 @@ class Combat(tk.Frame):
 
     def equip_item(self, item):
         """Method for when the player equips an item"""
+        # calls the method from the player class to set the player's weapon to the parameter: item
         self.player.equip(item)
 
     def update_fight_frame(self):
         """Text output for the fight frame box."""
-        self.fight_frame.config(state='normal')
+        self.fight_frame.config(state='normal') # enables editing
         self.fight_frame.insert(tk.END,
         f"\n{player.name} has dealt {player.weapon.damage} to {NESTED_DICT_LIST[player.current_location]['enemy'].name} \n")
         self.fight_frame.insert(tk.END,
         f"\n{NESTED_DICT_LIST[player.current_location]['enemy'].name} has dealt {NESTED_DICT_LIST[player.current_location]['enemy'].weapon.damage} to {self.player.name} \n")
-        self.fight_frame.config(state='disabled')
-
-        # self.fight_frame.yview_moveto(1.0)
+        self.fight_frame.config(state='disabled') # disables editing
 
     def update_stats(self):
         """Updates the text label health of the player."""
+        # updates the health of player
         new_health = f"HP: {self.player.health}"
         self.health.configure(text=new_health)
 
+        # updates the health of the enemy
         new_enemy_health = f"{NESTED_DICT_LIST[self.player.current_location]['enemy'].name} HP: {NESTED_DICT_LIST[self.player.current_location]['enemy'].health}"
         self.enemy_health.configure(text=new_enemy_health)
 
+        # updates the weapon being used
         new_weapon = f"Weapon: {self.player.weapon.name}"
         self.weapon.configure(text=new_weapon)
 
+        # updates the new damage output of the player
         new_damage = f"Damage: {self.player.weapon.damage}"
         self.weapon_dmg.configure(text=new_damage)
 
     def character_dead(self):
         """swtiches frames when the player dies."""
+
+        # if player's health is equal or below 0, frame switches to the class frame Gameover
         if self.player.health <= 0:
             self.switch_frames(GameOver)
+        # if enemy's health is equal or below 0, can return and continue adventure
         elif NESTED_DICT_LIST[self.player.current_location]['enemy'].health <= 0:
             self.return_adventure = tk.Button(self,
                                               height=4,
@@ -617,20 +674,22 @@ class Combat(tk.Frame):
             f"\nYou have defeated {NESTED_DICT_LIST[player.current_location]['enemy'].name}! \n")
             self.fight_frame.config(state='disabled')
             enemy_dead = f"{NESTED_DICT_LIST[self.player.current_location]['enemy'].name} has died"
-            self.enemy_health.configure(text=enemy_dead)
-            self.attack.grid_forget()
+            self.enemy_health.configure(text=enemy_dead) # changes enemy health to - enemy's death
+            self.attack.grid_forget() # hides the attack button
 
 
     def if_win(self):
         """Switches window when the player beats the boss."""
-        if high_orc.health <= 0:
-            self.switch_frames(Win)
+        # when the boss's health equals to 0 or goes below 0, player wins
+        if high_orc.health <= 0: 
+            self.switch_frames(WinFrame) # swtiches frames when conditions are met
 
-class Win(tk.Frame):
-    """A frame for when the player dies."""
+class WinFrame(tk.Frame):
+    """A frame for when the player beats the boss - wins the game."""
     def __init__(self, parent):
         tk.Frame.__init__(self, parent)
 
+        # label for when the player wins the game.
         tk.Label(self, text="YOU HAVE REACHED THE TOP OF THE TOWER!",
                  font=("Courier", 50)).pack(side="top", fill="x", padx=50)
 
@@ -639,15 +698,16 @@ class GameOver(tk.Frame):
     def __init__(self, parent):
         tk.Frame.__init__(self, parent)
 
+        # label for when the player loses to any enemies
         tk.Label(self, text="GAME OVER!",
                  font=("Courier", 50)).pack(side="top", fill="x", padx=50)
 
 
 def main():
     """Create the main app"""
-    app = App()
+    app = App() # instantiates the class App
     app.mainloop()
 
 
 if __name__ == "__main__":
-    main()
+    main() # iterates the class App.
