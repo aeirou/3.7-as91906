@@ -401,9 +401,9 @@ class MainInt(tk.Frame):
         self.update_move_buttons()
         self.update_pick_up_buttons()
 
-    def check_for_enemy(self):
+    def check_for_enemy(self, current_location):
         """Check if there is an enemy in the current location and show the fight button."""
-        if NESTED_DICT_LIST[self.player.current_location]['enemy'] == goblin or gremlin:
+        if NESTED_DICT_LIST[current_location].get('enemy'):
             self.fight_button.grid(row=3, column=0, columnspan=2, pady=10)
             self.output_frame.config(state='normal')
             self.output_frame.insert(tk.END,
@@ -442,7 +442,7 @@ class MainInt(tk.Frame):
                                width=8,
                                text=loc,
                                command=lambda loc=loc: [self.update_player_loc(loc), 
-                                                        self.check_for_enemy()])
+                                                        self.check_for_enemy(self.player.current_location)])
             button.pack(side="left", padx=5, pady=5)
 
     def toggle_loc_buttons(self):
