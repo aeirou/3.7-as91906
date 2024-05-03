@@ -333,7 +333,6 @@ class StartWindow(tk.Frame):
                                                                      padx=50,
                                                                      pady=50)
 
-
 class EnterName(tk.Frame):
     """Frame for the player's name."""
     def __init__(self, parent):
@@ -362,7 +361,79 @@ class EnterName(tk.Frame):
         """Sets the name of the player."""
         # from the variable name_var, it gets the player's name input.
         self.player.name = name_var.get()
-        self.switch_frame(MainInt) # switches frame to MainInt
+        self.switch_frame(IntroFrame1) # switches frame to MainInt
+
+class IntroFrame1(tk.Frame):
+    """Frame for the introduction to the storyline."""
+    def __init__(self, parent):
+        super().__init__(parent)
+
+        # inherits the instantiation of the class Player using self.player
+        self.player = parent.player
+        # inherits the method switch_frame
+        self.switch_frame = parent.switch_frame
+
+        tk.Label(self, text="You have died once.").grid(row=1, column=0, pady=50)
+
+
+        tk.Button(self, height=3,
+                  width=3,
+                  text="...",
+                  command=lambda:self.switch_frame(IntroFrame2)).grid(row=2, column=0, pady=50)
+
+
+class IntroFrame2(tk.Frame):
+    """Frame for the introduction to the storyline."""
+    def __init__(self, parent):
+        super().__init__(parent)
+
+        # inherits the instantiation of the class Player using self.player
+        self.player = parent.player
+        # inherits the method switch_frame
+        self.switch_frame = parent.switch_frame
+
+        tk.Label(self, text=f"Come {self.player.name}.").grid(row=1, column=0, pady=50)
+
+        tk.Button(self, height=3,
+                  width=3,
+                  text="...",
+                  command=lambda:self.switch_frame(IntroFrame3)).grid(row=2, column=0, pady=50)
+
+
+class IntroFrame3(tk.Frame):
+    """Frame for the introduction to the storyline."""
+    def __init__(self, parent):
+        super().__init__(parent)
+
+        # inherits the instantiation of the class Player using self.player
+        self.player = parent.player
+        # inherits the method switch_frame
+        self.switch_frame = parent.switch_frame
+
+        tk.Label(self, text="Regain your power.").grid(row=1, column=0, pady=50)
+
+        tk.Button(self, height=3,
+                  width=3,
+                  text="...",
+                  command=lambda:self.switch_frame(IntroFrame4)).grid(row=2, column=0, pady=50)
+
+
+class IntroFrame4(tk.Frame):
+    """Frame for the introduction to the storyline."""
+    def __init__(self, parent):
+        super().__init__(parent)
+
+        # inherits the instantiation of the class Player using self.player
+        self.player = parent.player
+        # inherits the method switch_frame
+        self.switch_frame = parent.switch_frame
+
+        tk.Label(self, text="Defeat the High Orc.").grid(row=1, column=0, pady=50)
+
+        tk.Button(self, height=3,
+                  width=3,
+                  text="...",
+                  command=lambda:self.switch_frame(MainInt)).grid(row=2, column=0, pady=50)
 
 
 class MainInt(tk.Frame):
